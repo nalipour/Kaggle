@@ -27,35 +27,6 @@ vc = train.Id.value_counts().sort_values(ascending=False)
 vc[:50].plot(kind='bar')
 plt.show()
 
-k_size = (4,4)
-drop_probability = 0.5
-hidden_size = 256
-batch_size = 2
-input_shape = (batch_size, 128, 128)
-pool_size = (2,2)
-learning_rate = 0.07
-num_of_epochs = 1
-num_of_classes = 4251
-
-model = Sequential()
-model.add(Convolution2D(32, kernel_size=k_size, activation="relu", input_shape=input_shape))
-model.add(MaxPooling2D(pool_size=pool_size, strides=(2,2)))
-"""model.add(Convolution2D(64, kernel_size=k_size, activation="relu"))
-model.add(MaxPooling2D(pool_size=pool_size, strides=(1,1)))
-model.add(Convolution2D(512, kernel_size=k_size, activation="relu"))
-model.add(MaxPooling2D(pool_size=pool_size, strides=(2,2)))
-"""
-model.add(Flatten())
-model.add(Dense(1024, activation="relu"))
-model.add(Dropout(0.25))
-model.add(Dense(512, activation="relu"))
-model.add(Dense(32, activation="relu"))
-model.add(Dropout(0.25))
-model.add(Dense(num_of_classes, activation="softmax"))
-
-model.compile(loss=categorical_crossentropy,
-              optimizer=Adam(lr=0.01),
-              metrics=['accuracy'])
 
 def process(image):
     # resize
@@ -85,6 +56,38 @@ for index, path in tqdm(enumerate(train.Image)):
     y.append(cod)
 
 print(np.shape(x))
-type(y)
-print(y)
-model.fit(x, y, batch_size=batch_size, epochs=num_of_epochs, verbose=1)
+y
+print(np.shape(y))
+
+
+k_size = (4, 4)
+drop_probability = 0.5
+hidden_size = 256
+batch_size = 64
+input_shape = (batch_size, 128, 128)
+pool_size = (2,2)
+learning_rate = 0.07
+num_of_epochs = 1
+num_of_classes = 4251
+
+model = Sequential()
+model.add(Convolution2D(32, kernel_size=k_size, activation="relu", input_shape=input_shape))
+model.add(MaxPooling2D(pool_size=pool_size, strides=(2,2)))
+model.add(Convolution2D(64, kernel_size=k_size, activation="relu"))
+model.add(MaxPooling2D(pool_size=pool_size, strides=(1,1)))
+model.add(Convolution2D(512, kernel_size=k_size, activation="relu"))
+model.add(MaxPooling2D(pool_size=pool_size, strides=(2,2)))
+model.add(Flatten())
+model.add(Dense(1024, activation="relu"))
+model.add(Dropout(0.25))
+model.add(Dense(512, activation="relu"))
+model.add(Dense(32, activation="relu"))
+model.add(Dropout(0.25))
+model.add(Dense(num_of_classes, activation="softmax"))
+
+model.compile(loss=categorical_crossentropy,
+              optimizer=Adam(lr=0.01),
+              metrics=['accuracy'])
+
+
+model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=num_of_epochs, verbose=1)
