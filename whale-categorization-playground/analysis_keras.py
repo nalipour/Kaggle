@@ -3,9 +3,11 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from keras.models import Sequential
-from keras.layers import Convolution2D, Dense, Flatten, Dropout, MaxPooling2D
+from keras.layers import Conv2D, Dense, Flatten, Dropout, MaxPooling2D
 from keras.losses import categorical_crossentropy
 from keras.optimizers import Adam
+from keras.layers.advanced_activations import LeakyReLU
+from keras.utils import to_categorical
 from tqdm import tqdm
 import numpy as np
 
@@ -30,7 +32,7 @@ plt.show()
 
 def process(image):
     # resize
-    image = np.resize(image, [128, 128])
+    image = np.resize(image, [128, 128, 3])
 
     # convert to grayscale
     if image.shape == 3:
@@ -46,8 +48,11 @@ y = []
 
 
 for index, path in tqdm(enumerate(train.Image)):
+    """
     if index>4:
         break
+    """
+
     image = mpimg.imread(training_dir + path)
     image = process(image)
     x.append(image)
@@ -55,39 +60,47 @@ for index, path in tqdm(enumerate(train.Image)):
     cod = train[train.Image == path]['Id_int'].values[0]
     y.append(cod)
 
-print(np.shape(x))
-y
-print(np.shape(y))
 
+print(np.shape(x))
+print(np.shape(y))
+y
+#x = x.astype('float32')
+
+# One hot encoding
+train_Y_one_hot = to_categorical(y)
+print('After conversion to one-hot:', len(train_Y_one_hot[0]))
+print('shape train_Y_one_hot: ', np.shape(train_Y_one_hot))
 
 k_size = (4, 4)
 drop_probability = 0.5
 hidden_size = 256
 batch_size = 64
-input_shape = (batch_size, 128, 128)
+input_shape = (128, 128, 3)
 pool_size = (2,2)
 learning_rate = 0.07
 num_of_epochs = 1
-num_of_classes = 4251
+num_of_classes = 4251 # len(np.unique(y))# 4251
+print('num_of_classes: ', num_of_classes)
 
 model = Sequential()
-model.add(Convolution2D(32, kernel_size=k_size, activation="relu", input_shape=input_shape))
-model.add(MaxPooling2D(pool_size=pool_size, strides=(2,2)))
-model.add(Convolution2D(64, kernel_size=k_size, activation="relu"))
-model.add(MaxPooling2D(pool_size=pool_size, strides=(1,1)))
-model.add(Convolution2D(512, kernel_size=k_size, activation="relu"))
-model.add(MaxPooling2D(pool_size=pool_size, strides=(2,2)))
+model.add(Conv2D(32, kernel_size=(3, 3),activation='linear',input_shape=input_shape,padding='same'))
+model.add(LeakyReLU(alpha=0.1))
+model.add(MaxPooling2D((2, 2),padding='same'))
+model.add(Conv2D(64, (3, 3), activation='linear',padding='same'))
+model.add(LeakyReLU(alpha=0.1))
+model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
+model.add(Conv2D(128, (3, 3), activation='linear',padding='same'))
+model.add(LeakyReLU(alpha=0.1))
+model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
 model.add(Flatten())
-model.add(Dense(1024, activation="relu"))
-model.add(Dropout(0.25))
-model.add(Dense(512, activation="relu"))
-model.add(Dense(32, activation="relu"))
-model.add(Dropout(0.25))
-model.add(Dense(num_of_classes, activation="softmax"))
+model.add(Dense(128, activation='linear'))
+model.add(LeakyReLU(alpha=0.1))
+model.add(Dense(num_of_classes, activation='softmax'))
+
 
 model.compile(loss=categorical_crossentropy,
               optimizer=Adam(lr=0.01),
               metrics=['accuracy'])
+model.summary()
 
-
-model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=num_of_epochs, verbose=1)
+model.fit(np.array(x), train_Y_one_hot, batch_size=batch_size, epochs=num_of_epochs, verbose=1)
