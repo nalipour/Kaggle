@@ -25,12 +25,14 @@ print(test.head())
 
 sampleImageFile1 = train.Image[2]
 sampleImage = mpimg.imread(training_dir + sampleImageFile1)
+plt.figure()
 plt.imshow(sampleImage)
-plt.show()
+plt.show(block=False)
 
 vc = train.Id.value_counts().sort_values(ascending=False)
 vc[:50].plot(kind='bar')
-plt.show()
+plt.figure()
+plt.show(block=False)
 
 
 def process(image):
@@ -58,7 +60,7 @@ def loop_over_data(data):
     y = []
 
     for index, path in tqdm(enumerate(data.Image)):
-        if index>10:
+        if index > 1000:
             break
         image, label = get_image_from_path(path, training_dir, data)
 
@@ -117,11 +119,35 @@ model.compile(loss=categorical_crossentropy,
               metrics=['accuracy'])
 model.summary()
 
-model.fit(X_train, train_Y_one_hot, batch_size=batch_size,
-          epochs=num_of_epochs, verbose=1)
+whale_model = model.fit(X_train, train_Y_one_hot, batch_size=batch_size,
+                        epochs=num_of_epochs, verbose=1)
 
 model.save('whale.h5py')
 test_eval = model.evaluate(X_test, test_Y_one_hot, verbose=1)
 
 print('Test loss:', test_eval[0])
 print('Test accuracy:', test_eval[1])
+
+print(whale_model.history.keys())
+accuracy = whale_model.history['acc']
+# val_accuracy = whale_model.history['val_acc']
+loss = whale_model.history['loss']
+# val_loss = whale_model.history['val_loss']
+epochs = range(len(accuracy))
+plt.figure()
+plt.plot(epochs, accuracy, 'bo', label='Training accuracy')
+# plt.plot(epochs, val_accuracy, 'b', label='Validation accuracy')
+plt.title('Training and validation accuracy')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.figure()
+plt.plot(epochs, loss, 'bo', label='Training loss')
+# plt.plot(epochs, val_loss, 'b', label='Validation loss')
+plt.title('Training and validation loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+plt.show(block=False)
+
+input()
