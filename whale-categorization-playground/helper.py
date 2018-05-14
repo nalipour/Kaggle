@@ -2,6 +2,16 @@ import numpy as np
 import matplotlib.image as mpimg
 from tqdm import tqdm
 import pathlib
+import pandas as pd
+
+
+def read_classes(csv_file):
+    data = pd.read_csv(csv_file)
+    data['Id_int'] = pd.factorize(data['Id'])[0]
+    all_classes = data['Id'].unique()
+
+    return data, all_classes
+
 
 def process(image):
     # resize

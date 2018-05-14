@@ -14,11 +14,12 @@ from datetime import datetime
 
 MAX_IMAGES = 10
 now = datetime.utcnow().strftime('%Y%m%d%H%M')
-NUM_OF_CLASSES = 4251  # len(np.unique(y))# 4251
 
 training_dir = 'data/train/'
-data = pd.read_csv('data/train.csv')
-data['Id_int'] = pd.factorize(data['Id'])[0]
+data, all_classes = helper.read_classes('data/train.csv')
+NUM_OF_CLASSES = len(all_classes)
+# data = pd.read_csv('data/train.csv')
+# data['Id_int'] = pd.factorize(data['Id'])[0]
 
 train, test = train_test_split(
     data, test_size=0.3, shuffle=True, random_state=1337)
