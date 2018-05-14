@@ -39,8 +39,8 @@ plt.figure()
 plt.show(block=False)
 
 
-X_train, y_train = helper.loop_over_data(train, training_dir, max_images=MAX_IMAGES)
-X_test, y_test = helper.loop_over_data(test, training_dir, max_images=MAX_IMAGES)
+X_train, y_train = helper.load_train_data(train, training_dir, max_images=MAX_IMAGES)
+X_test, y_test = helper.load_train_data(test, training_dir, max_images=MAX_IMAGES)
 
 
 print('X_train: ', np.shape(X_train))

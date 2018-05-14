@@ -28,7 +28,7 @@ print('Found', len(test_sorted), 'training images')
 print(*test_sorted[0:2], sep='\n')
 
 
-X_test = helper.loop_over_test_data(test_sorted, max_images=MAX_IMAGES)
+X_test = helper.load_test_data(test_sorted, max_images=MAX_IMAGES)
 model = load_model('whale.h5')
 test_eval = model.predict(X_test)
 
@@ -43,7 +43,6 @@ all_classes[max_indices]
 with open('results/sample_submission.csv', 'w') as csvfile:
     fieldnames = ['Image', 'Id']
     writer = csv.writer(csvfile)
-    #writer.writeheader()
     writer.writerow(fieldnames)
     for index, image_name in tqdm(enumerate(test_sorted)):
         if index > MAX_IMAGES:

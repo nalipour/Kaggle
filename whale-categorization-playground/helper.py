@@ -26,7 +26,7 @@ def get_image_from_path(image_name, df=None, with_labels=True):
         return image, None
 
 
-def loop_over_data(df, data_dir, max_images=None):
+def load_train_data(df, data_dir, max_images=None):
     X = []
     y = []
     for index, image_name in tqdm(enumerate(df.Image)):
@@ -40,7 +40,7 @@ def loop_over_data(df, data_dir, max_images=None):
     return np.array(X), y
 
 
-def loop_over_test_data(data, max_images=None):
+def load_test_data(data, max_images=None):
     X = []
     for index, image_name in tqdm(enumerate(data)):
         if max_images and index > max_images:
