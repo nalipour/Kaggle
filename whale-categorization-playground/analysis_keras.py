@@ -8,16 +8,20 @@ from keras.losses import categorical_crossentropy
 from keras.optimizers import Adam
 from keras.layers.advanced_activations import LeakyReLU
 from keras.utils import to_categorical
-from tqdm import tqdm
 import numpy as np
+import helper
+from datetime import datetime
 
+MAX_IMAGES = 10
+now = datetime.utcnow().strftime('%Y%m%d%H%M')
 NUM_OF_CLASSES = 4251  # len(np.unique(y))# 4251
 
 training_dir = 'data/train/'
 data = pd.read_csv('data/train.csv')
 data['Id_int'] = pd.factorize(data['Id'])[0]
 
-train, test = train_test_split(data, test_size=0.3, shuffle=True, random_state=1337)
+train, test = train_test_split(
+    data, test_size=0.3, shuffle=True, random_state=1337)
 print('Checking training data head')
 print(train.head())
 print('Checking test data head')
@@ -35,43 +39,8 @@ plt.figure()
 plt.show(block=False)
 
 
-def process(image):
-    # resize
-    image = np.resize(image, [128, 128, 1])
-
-    # convert to grayscale
-    if image.shape == 3:
-        image = np.dot([image[:,:,0],image[:,:,1],image[:,:,2]],[0.299,0.587,0.114])
-
-    # return normalized
-    return image / 255
-
-
-def get_image_from_path(path, training_dir, data):
-    image = mpimg.imread(training_dir + path)
-    image = process(image)
-    label = data[data.Image == path]['Id_int'].values[0]
-
-    return image, label
-
-
-def loop_over_data(data):
-    X = []
-    y = []
-
-    for index, path in tqdm(enumerate(data.Image)):
-        if index > 10:
-            break
-        image, label = get_image_from_path(path, training_dir, data)
-
-        X.append(image)
-        y.append(label)
-
-    return np.array(X), y
-
-
-X_train, y_train = loop_over_data(train)
-X_test, y_test = loop_over_data(test)
+X_train, y_train = helper.loop_over_data(train, training_dir, max_images=MAX_IMAGES)
+X_test, y_test = helper.loop_over_data(test, training_dir, max_images=MAX_IMAGES)
 
 
 print('X_train: ', np.shape(X_train))
@@ -99,15 +68,15 @@ print('num_of_classes: ', NUM_OF_CLASSES)
 
 model = Sequential()
 model.add(Conv2D(32, kernel_size=(3, 3), activation='linear',
-          input_shape=input_shape, padding='same'))
+                 input_shape=input_shape, padding='same'))
 model.add(LeakyReLU(alpha=0.1))
-model.add(MaxPooling2D((2, 2),padding='same'))
-model.add(Conv2D(64, (3, 3), activation='linear',padding='same'))
+model.add(MaxPooling2D((2, 2), padding='same'))
+model.add(Conv2D(64, (3, 3), activation='linear', padding='same'))
 model.add(LeakyReLU(alpha=0.1))
-model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
-model.add(Conv2D(128, (3, 3), activation='linear',padding='same'))
+model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+model.add(Conv2D(128, (3, 3), activation='linear', padding='same'))
 model.add(LeakyReLU(alpha=0.1))
-model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
+model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
 model.add(Flatten())
 model.add(Dense(128, activation='linear'))
 model.add(LeakyReLU(alpha=0.1))
@@ -122,7 +91,7 @@ model.summary()
 whale_model = model.fit(X_train, train_Y_one_hot, batch_size=batch_size,
                         epochs=num_of_epochs, verbose=1)
 
-model.save('whale.h5')
+model.save(now+'_whale.h5')
 test_eval = model.evaluate(X_test, test_Y_one_hot, verbose=1)
 
 print('Test loss:', test_eval[0])
