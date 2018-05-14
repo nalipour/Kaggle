@@ -14,8 +14,6 @@ MAX_IMAGES = 10
 
 data, all_classes = helper.read_classes('data/train.csv')
 
-# Maybe not the most elegant solution to find the classes
-
 test_dir = 'data/test/'
 result_file = 'results/sample_submission.csv'
 test_paths = pathlib.Path('data/test/').glob('*.jpg')
