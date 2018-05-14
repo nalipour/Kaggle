@@ -60,7 +60,7 @@ def loop_over_data(data):
     y = []
 
     for index, path in tqdm(enumerate(data.Image)):
-        if index > 1000:
+        if index > 10:
             break
         image, label = get_image_from_path(path, training_dir, data)
 
@@ -122,7 +122,7 @@ model.summary()
 whale_model = model.fit(X_train, train_Y_one_hot, batch_size=batch_size,
                         epochs=num_of_epochs, verbose=1)
 
-model.save('whale.h5py')
+model.save('whale.h5')
 test_eval = model.evaluate(X_test, test_Y_one_hot, verbose=1)
 
 print('Test loss:', test_eval[0])
