@@ -30,7 +30,7 @@ train, test = train_test_split(
 
 visualization.count_individual(train)
 visualization.view_image_index(data, training_dir, 50)
-visualization.view_image_whaleID(data, training_dir, 'w_e6ec8ee')
+visualization.view_image_whaleID(data, training_dir, all_classes[5])
 # print('Checking training data head')
 # print(train.head())
 # print('Checking test data head')
